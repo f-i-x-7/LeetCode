@@ -51,6 +51,10 @@ PrintResult("abcbda", true);
 PrintResult("abcbad", true);
 
 
+// From leetcode check
+PrintResult("aguokepatgbnvfqmgmlcupuufxoohdfpgjdmysgvhmvffcnqxjjxqncffvmhvgsymdjgpfdhooxfuupuculmgmqfvnbgtapekouga", true);
+
+
 
 static void PrintResult(string s, bool expectedResult)
 {
@@ -86,6 +90,7 @@ static bool ValidPalindrome(string s)
         oneCharRemoved = true;
 
         // Skip one character either from beginning of string or from end of string and recheck.
+        // FIXME: need to fix case when both checks at current stage will succeed.
         if (s[i + 1] == s[j])
         {
             frontIndexOffset++;
