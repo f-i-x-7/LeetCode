@@ -3,6 +3,8 @@
 // Given a string s, return true if the s can be palindrome after deleting at most one character from it.
 
 
+using System.Diagnostics;
+
 Console.WriteLine("All same characters, odd & even length");
 PrintResult("aaa", true);
 PrintResult("aaaa", true);
@@ -50,16 +52,27 @@ PrintResult("abcdba", true);
 PrintResult("abcbda", true);
 PrintResult("abcbad", true);
 
-
-// From leetcode check
+// After leetcode check
+// Some failed string from leetcode. When it is up to removing one character, it seems at first that both char from front and from back can be removed.
 PrintResult("aguokepatgbnvfqmgmlcupuufxoohdfpgjdmysgvhmvffcnqxjjxqncffvmhvgsymdjgpfdhooxfuupuculmgmqfvnbgtapekouga", true);
+// Simplified version of previous string. Actually 'u' from back actually should be removed (the one before last char),
+// but technically at this position s[1] ('c') can be removed too (but this will lead to fail later).
+PrintResult("mcupuuxjjxuupucum", true);
+
 
 
 
 static void PrintResult(string s, bool expectedResult)
 {
     var actualResult = ValidPalindrome(s);
+
+    if (actualResult != expectedResult)
+        Console.ForegroundColor = ConsoleColor.Red;
+
     Console.WriteLine((actualResult == expectedResult ? "" : "ERROR! ") + s + " = " + actualResult);
+
+    if (actualResult != expectedResult)
+        Console.ResetColor();
 }
 
 
@@ -77,8 +90,8 @@ static bool ValidPalindrome(string s)
 
     for (var i = 0; i < midIndex; i++)
     {
-        var j = s.Length - 1 - i - backIndexOffset;
-        if (s[i + frontIndexOffset] == s[j])
+        var j = s.Length - 1 - i;
+        if (s[i + frontIndexOffset] == s[j - backIndexOffset])
             continue;
 
         // Mismatch found.
@@ -88,6 +101,8 @@ static bool ValidPalindrome(string s)
             return false;
 
         oneCharRemoved = true;
+
+        Debug.Assert(frontIndexOffset == 0 && backIndexOffset == 0);
 
         // Skip one character either from beginning of string or from end of string and recheck.
         // FIXME: need to fix case when both checks at current stage will succeed.
