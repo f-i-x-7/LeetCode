@@ -87,6 +87,7 @@ static bool ValidPalindrome(string s)
     var oneCharRemoved = false;
     var frontIndexOffset = 0;
     var backIndexOffset = 0;
+    int? forkIndexWhereFrontCharWasRemoved = null;
 
     for (var i = 0; i < midIndex; i++)
     {
@@ -96,9 +97,23 @@ static bool ValidPalindrome(string s)
 
         // Mismatch found.
 
-        // If one character was already removed - answer is false.
         if (oneCharRemoved)
+        {
+            if (forkIndexWhereFrontCharWasRemoved != null)
+            {
+                // Previously there was a fork, and we removed char from front. But this strategy didn't succeed.
+                // Return back to fork position, try to remove back char and proceed.
+                Debug.Assert(frontIndexOffset == 1 && backIndexOffset == 0);
+
+                frontIndexOffset--;
+                backIndexOffset++;
+                forkIndexWhereFrontCharWasRemoved = null;
+                continue;
+            }
+
+            // If one character was already removed and there were no fork previously (or both its ways were observed) - answer is false.
             return false;
+        }
 
         oneCharRemoved = true;
 
@@ -106,19 +121,29 @@ static bool ValidPalindrome(string s)
 
         // Skip one character either from beginning of string or from end of string and recheck.
         // FIXME: need to fix case when both checks at current stage will succeed.
-        if (s[i + 1] == s[j])
+        var canRemoveFrontChar = s[i + 1] == s[j];
+        var canRemoveBackChar = s[i] == s[j - 1];
+
+        if (canRemoveFrontChar)
         {
+            if (canRemoveBackChar)
+            {
+                // Fork case: at this point, both chars can be removed.
+                // Try to remove front char, but if later one more mismatch occurs - return to here, remove back char and proceed.
+                forkIndexWhereFrontCharWasRemoved = i;
+            }
+
             frontIndexOffset++;
             continue;
         }
 
-        if (s[i] == s[j - 1])
+        if (canRemoveBackChar)
         {
             backIndexOffset++;
             continue;
         }
 
-        // Mismatch found after skipping one character - asnwer is false.
+        // Mismatch found after skipping one character - answer is false.
         return false;
     }
 
