@@ -5,13 +5,15 @@
 // You can return the answer in any order.
 var array = new[] { 3, 3 };
 var result = TwoSum(array, 6);
-Console.WriteLine(result);
+Console.WriteLine(result[0] + " " + result[1]);
 
-
+array = new[] { 2, 7, 11, 15 };
+result = TwoSum(array, 9);
+Console.WriteLine(result[0] + " " + result[1]);
 
 static int[] TwoSum(int[] nums, int target)
 {
-    return TwoSum_Impl2(nums, target);
+    return TwoSum_Impl3(nums, target);
 }
 
 static int[] TwoSum_Impl1(int[] nums, int target)
@@ -64,10 +66,35 @@ static int[] TwoSum_Impl2(int[] nums, int target)
         {
             if (i1 < 0 && array[i] == item1)
                 i1 = i;
-            if (i2 < 0 && array[i] == item2 && i1 != i) // o not return same indexes if item1 == item2
+            if (i2 < 0 && array[i] == item2 && i1 != i) // do not return same indexes if item1 == item2
                 i2 = i;
         }
 
         return (i1, i2);
     }
+}
+
+static int[] TwoSum_Impl3(int[] nums, int target)
+{
+    // Solution peeked at Leetcode, seems to be O(N) implementation
+
+    // It is interesting that with default hash map capacity execution time was greater than with O(N * logN) implementation above,
+    // and with capacity = nums.Length / 2 execution time was almost on par with O(N * logN) implementation above
+    var numsToIndicesMap = new Dictionary<int, int>(nums.Length / 2);
+
+    for (int i = 0; i < nums.Length; i++)
+    {
+        var num = nums[i];
+        var complementaryNum = target - num;
+
+        if (numsToIndicesMap.TryGetValue(complementaryNum, out var complementaryIndex))
+        {
+            return new[] { i, complementaryIndex };
+        }
+
+        numsToIndicesMap[num] = i;
+    }
+
+    //throw new Exception("No asnwer or possibly same indexes answer.");
+    return new[] { -1, -1 };
 }
