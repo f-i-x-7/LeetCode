@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32002.185
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SwappingNodesInALinkedList_001721", "SwappingNodesInALinkedList_001721\SwappingNodesInALinkedList_001721.csproj", "{735166F1-EAA5-418C-8369-A3092F9039EB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{735166F1-EAA5-418C-8369-A3092F9039EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{735166F1-EAA5-418C-8369-A3092F9039EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{735166F1-EAA5-418C-8369-A3092F9039EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{735166F1-EAA5-418C-8369-A3092F9039EB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1334408C-0255-4A31-880A-12C91830F995}
+	EndGlobalSection
+EndGlobal
