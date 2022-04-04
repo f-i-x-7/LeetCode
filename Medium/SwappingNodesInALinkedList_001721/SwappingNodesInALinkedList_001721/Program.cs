@@ -117,6 +117,11 @@ public static class Solution
         if (head is null)
             throw new ArgumentException(nameof(head));
 
+        return SwapNodes_Impl2(head, k);
+    }
+
+    public static ListNode SwapNodes_Impl1(ListNode head, int k)
+    {
         // O(N) time complexity, O(k) additional adjacent space required (because of 'k+1' size of circular buffer), seemed most optimal here.
         // Other non-optimal strategies that came into mind:
         // 1) Materialize linked list into List<T> (requires O(N) additional adjacent space), then easily find k-th element from behind. Still O(N) time complexity.
@@ -283,6 +288,58 @@ public static class Solution
             node1.next = nodeAfterNode2BeforeSwap;
 
             return head;
+        }
+    }
+
+    public static ListNode SwapNodes_Impl2(ListNode head, int k)
+    {
+        // Solution seen at Leetcode after implementing own solution #1. Differences are:
+        // 1) Do not swap list nodes, swap just values that are stored in nodes. It simplifies swapping code a lot, but may be not acceptable sometimes in real world.
+        // But definitely - such possibility should be always considered during real-world tasks.
+        // 2) Do not use additional memory to define k-th item from tail of list, just use "hacky iteration".
+
+        var (leftTarget, rightTarget) = IterateLinkedList(head, k);
+
+        var tmp = leftTarget.val;
+        leftTarget.val = rightTarget.val;
+        rightTarget.val = tmp;
+
+        return head;
+
+
+        static (ListNode leftTarget, ListNode rightTarget) IterateLinkedList(ListNode head, int k)
+        {
+            var leftTarget = head;
+            var rightTarget = head;
+            var current = head;
+            var i = 1;
+
+            while (current != null)
+            {
+                // what I used before:
+                //if (i == k)
+                //    leftTarget = current;
+
+                // and right target was determined in completely different way
+                
+                // Solution that were suggested at Leetcode:
+                // For leftTarget actually suggested code can perform poorlier IMHO:
+                if (i < k)
+                    leftTarget = leftTarget.next;
+
+                // This is what I called "hacky", very interesting approach, for rightTarget.
+                //
+                // List has N items, we iterating from head (moving current pointer) and skip first k iterations, then started to move rightTarget pointer.
+                // If k == 1 then at then end of iteration current pointer will be null (tail reached) and rightTarget will point to tail.
+                // If K == N then at then end of iteration current pointer will be null (tail reached) and rightTarget will still point to head (not updated during this iteration).
+                if (i > k)
+                    rightTarget = rightTarget.next;
+
+                i++;
+                current = current.next;
+            }
+
+            return (leftTarget, rightTarget);
         }
     }
 }
