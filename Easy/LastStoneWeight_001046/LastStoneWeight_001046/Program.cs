@@ -58,7 +58,7 @@ static void Test(int[] stones, int expectedResult)
 
 public static class Solution
 {
-    public static int LastStoneWeight(int[] stones) => LastStoneWeight_FindMaxInPlace(stones);
+    public static int LastStoneWeight(int[] stones) => LastStoneWeight_Heap(stones);
 
     private static int LastStoneWeight_WithArraySort(int[] stones)
     {
@@ -148,6 +148,51 @@ public static class Solution
             // Smash stones
             stones[max2Index] = 0;
             stones[max1Index] = max1 - max2;
+        }
+    }
+
+    private sealed class ComparerForMaxHeap : IComparer<int>
+    {
+        public int Compare(int x, int y) => y.CompareTo(x);
+    }
+
+    private static int LastStoneWeight_Heap(int[] stones)
+    {
+        if (stones is null || stones.Length == 0)
+            return -1;
+
+        if (stones.Length == 1)
+            return stones[0];
+
+        // O(N * logN) time complexity with binary heap (peeked at Leetcode discussions).
+        // 1) Binary heap creation has O(N * logN) time complexity (because there are N elements and insertion has worst case complexity O(logN)).
+        // 2) Then iteration of heap has O(N * logN) time complexity too (item deletion and possible insertion are O(logN), number of this operations is proportional to N).
+
+        var heap = new PriorityQueue<int, int>(stones.Length, new ComparerForMaxHeap());
+        for (var i = 0; i < stones.Length;i++)
+        {
+            heap.Enqueue(stones[i], stones[i]);
+        }
+
+        // The difference from other approaches (from above) is that we reduce number of items at each iteration.
+        while (true)
+        {
+            if (!heap.TryDequeue(out var max1, out _) || max1 == 0)
+            {
+                // No stones left
+                return 0;
+            }
+
+            if (!heap.TryDequeue(out var max2, out _) || max2 == 0)
+            {
+                // One stone left
+                return max1;
+            }
+
+            // Smash stones
+            var remainder = max1 - max2;
+            if (remainder > 0)
+                heap.Enqueue(remainder, remainder);
         }
     }
 }
