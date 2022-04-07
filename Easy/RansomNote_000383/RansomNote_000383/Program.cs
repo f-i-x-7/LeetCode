@@ -33,7 +33,9 @@ Console.WriteLine("Hello, World!");
 
 public static class Solution
 {
-    public static bool CanConstruct(string ransomNote, string magazine)
+    public static bool CanConstruct(string ransomNote, string magazine) => CanConstruct_HashMaps(ransomNote, magazine);
+
+    public static bool CanConstruct_HashMaps(string ransomNote, string magazine)
     {
         if (string.IsNullOrEmpty(ransomNote) || string.IsNullOrEmpty(magazine) || ransomNote.Length > magazine.Length)
             return false;
@@ -51,5 +53,36 @@ public static class Solution
         }
 
         return true;
+    }
+
+    public static bool CanConstruct_Arrays(string ransomNote, string magazine)
+    {
+        if (string.IsNullOrEmpty(ransomNote) || string.IsNullOrEmpty(magazine) || ransomNote.Length > magazine.Length)
+            return false;
+
+        // NOTE: after implementing above solution with hash maps, I've peeked Discussions section at Leetcode and noted more performant (but a bit less readable) approach:
+        // use 2 arrays with length of 26 items (by number of English alphabet letters), use arr[i] as counter of i-th letter; 'i' can be easily calculated as '(int)ch - 97' (use ASCII codes).
+
+        var ransomNoteLetters = new int[26];
+        foreach (var c in ransomNote)
+        {
+            ransomNoteLetters[GetEnglishLetterIndex(c)]++;
+        }
+        var magazineLetters = new int[26];
+        foreach (var c in magazine)
+        {
+            magazineLetters[GetEnglishLetterIndex(c)]++;
+        }
+
+        for (var i = 0; i < ransomNoteLetters.Length; i++)
+        {
+            if (ransomNoteLetters[i] > magazineLetters[i])
+                return false;
+        }
+
+        return true;
+
+
+        static int GetEnglishLetterIndex(char c) => c - 'a';
     }
 }
