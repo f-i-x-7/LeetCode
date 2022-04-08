@@ -35,7 +35,7 @@
 
 using FluentAssertions;
 
-var kthLargest = new KthLargest(3, new[] { 4, 5, 8, 2 }); // sorted descending: [8, 5, 4, 2]
+var kthLargest = new KthLargest_Heap(3, new[] { 4, 5, 8, 2 }); // sorted descending: [8, 5, 4, 2]
 kthLargest.Add(3).Should().Be(4);
 kthLargest.Add(5).Should().Be(5);
 kthLargest.Add(10).Should().Be(5);
@@ -43,7 +43,7 @@ kthLargest.Add(9).Should().Be(8);
 kthLargest.Add(4).Should().Be(8);
 Console.WriteLine("SUCCEEDED CASE #1");
 
-kthLargest = new KthLargest(1, new int[0]);
+kthLargest = new KthLargest_Heap(1, new int[0]);
 kthLargest.Add(3).Should().Be(3);
 kthLargest.Add(3).Should().Be(3);
 kthLargest.Add(4).Should().Be(4);
@@ -53,6 +53,7 @@ kthLargest.Add(1).Should().Be(10);
 Console.WriteLine("SUCCEEDED CASE #2");
 
 
+// List-based, O(N * logN + M * N) where M is number of calls to Add() method
 public class KthLargest
 {
     /// <summary>
@@ -150,6 +151,57 @@ public class KthLargest
         }
     }
 }
+
+// When I thought abouth this task, I remembered heap, but I thought only about max heap, and decided that it will not be useful actually
+// (because of k * logN calls to pop items every time).
+// Min heap solution is peeked from Leetcode official solution, this is much better than List-based solution.
+public class KthLargest_Heap
+{
+    /// <summary>
+    /// Min heap of size 'k', its top element is k-th maximum in stream, and it can be obtained in O(1).
+    /// </summary>
+    private readonly PriorityQueue<int, int> heap;
+    private readonly int k;
+
+    public KthLargest_Heap(int k, int[] nums)
+    {
+        if (k <= 0)
+            throw new ArgumentOutOfRangeException(nameof(k));
+        if (nums is null)
+            throw new ArgumentNullException(nameof(nums));
+        if (k > nums.Length + 1)
+            throw new ArgumentException($"k={k}; nums.Length={nums.Length}; nums=[{string.Join(',', nums)}]");
+
+        this.k = k;
+
+        // O(N * logN) heap initialization:
+        // Part 1 - fill with data, O(N * logN)
+        heap = new PriorityQueue<int, int>(k); // default comparer means min heap
+        foreach (var num in nums)
+        {
+            heap.Enqueue(num, num);
+        }
+
+        // Part 2 - remove smalles elements, O((N-k) * logN)
+        while (heap.Count > k)
+        {
+            heap.Dequeue();
+        }
+    }
+
+    // O(N) because of list manipulations (removal fron the front of list, insertion into the middle, etc.)
+    public int Add(int val)
+    {
+        heap.Enqueue(val, val);
+        if (heap.Count > k)
+        {
+            heap.Dequeue();
+        }
+
+        return heap.Peek();
+    }
+}
+
 
 /**
  * Your KthLargest object will be instantiated and called as such:
