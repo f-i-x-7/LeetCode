@@ -174,12 +174,12 @@ public class KthLargest_Heap
 
         this.k = k;
 
-        // Min heap with size 'k' initilization
-        heap = new PriorityQueue<int, int>(k); // default comparer means min heap
+        // NOTE: heap should be created with default comparer, this means min heap
 
         // Approach 1
         // Not very effective approach, O((2N-k) * logK) time to initialize heap:
         // Part 1 - fill with data, O(N * logk)
+        //heap = new PriorityQueue<int, int>(k);
         //foreach (var num in nums)
         //{
         //    heap.Enqueue(num, num);
@@ -192,11 +192,29 @@ public class KthLargest_Heap
 
         // Approach 2, O((min(N, k) + N - k)) * logK), if k << N this is way more efficient that approach #1
         // Part 1 - insert no more than 'k' elements, time complexity O(min(N, k) * logk)
+        //heap = new PriorityQueue<int, int>(k);
+        //var countOfNumbersToPlaceInHeap = Math.Min(k, nums.Length);
+        //for (var i = 0; i < countOfNumbersToPlaceInHeap; i++)
+        //{
+        //    heap.Enqueue(nums[i], nums[i]);
+        //}
+        // Part 2 - add remaining elements if N > k, time complexity O((N-k) * logk)
+        //if (nums.Length > countOfNumbersToPlaceInHeap)
+        //{
+        //    for (var i = countOfNumbersToPlaceInHeap; i < nums.Length; i++)
+        //    {
+        //        heap.EnqueueDequeue(nums[i], nums[i]);
+        //    }
+        //}
+
+        // Approach 3 - O((N-k) * logK + min(N, k))
+        // It is based on hope that in C# such heap constructor is optimized and have time complexity O(N)
+        // (unfortunately, C# does not have explicit possibility to call heapify() method).
+        // Actual run time is faster than approach #2, so it seems that assumption is actually true
+        // (and it seems that LINQ Take is optimized for arrays, and final enumerable after Select is an iterator with pre-known count).
+        // Part 1 - insert no more than 'k' elements, time complexity O(min(N, k))
         var countOfNumbersToPlaceInHeap = Math.Min(k, nums.Length);
-        for (var i = 0; i < countOfNumbersToPlaceInHeap; i++)
-        {
-            heap.Enqueue(nums[i], nums[i]);
-        }
+        heap = new PriorityQueue<int, int>(nums.Take(countOfNumbersToPlaceInHeap).Select(i => (i, i)));
         // Part 2 - add remaining elements if N > k, time complexity O((N-k) * logk)
         if (nums.Length > countOfNumbersToPlaceInHeap)
         {
