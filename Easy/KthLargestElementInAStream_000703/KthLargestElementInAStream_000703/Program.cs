@@ -152,8 +152,8 @@ public class KthLargest
     }
 }
 
-// When I thought abouth this task, I remembered heap, but I thought only about max heap, and decided that it will not be useful actually
-// (because of k * logN calls to pop items every time).
+// When I thought abouth this task, I remembered heap, but I thought only about max heap of size N, and decided that it will not be useful actually
+// (because of k * logN calls to pop items every time and then push again).
 // Min heap solution is peeked from Leetcode official solution, this is much better than List-based solution.
 public class KthLargest_Heap
 {
@@ -174,28 +174,50 @@ public class KthLargest_Heap
 
         this.k = k;
 
-        // O(N * logN) heap initialization:
-        // Part 1 - fill with data, O(N * logN)
+        // Min heap with size 'k' initilization
         heap = new PriorityQueue<int, int>(k); // default comparer means min heap
-        foreach (var num in nums)
-        {
-            heap.Enqueue(num, num);
-        }
 
-        // Part 2 - remove smalles elements, O((N-k) * logN)
-        while (heap.Count > k)
+        // Approach 1
+        // Not very effective approach, O((2N-k) * logK) time to initialize heap:
+        // Part 1 - fill with data, O(N * logk)
+        //foreach (var num in nums)
+        //{
+        //    heap.Enqueue(num, num);
+        //}
+        // Part 2 - remove smalles elements, O((N-k) * logk)
+        //while (heap.Count > k)
+        //{
+        //    heap.Dequeue();
+        //}
+
+        // Approach 2, O((min(N, k) + N - k)) * logK), if k << N this is way more efficient that approach #1
+        // Part 1 - insert no more than 'k' elements, time complexity O(min(N, k) * logk)
+        var countOfNumbersToPlaceInHeap = Math.Min(k, nums.Length);
+        for (var i = 0; i < countOfNumbersToPlaceInHeap; i++)
         {
-            heap.Dequeue();
+            heap.Enqueue(nums[i], nums[i]);
+        }
+        // Part 2 - add remaining elements if N > k, time complexity O((N-k) * logk)
+        if (nums.Length > countOfNumbersToPlaceInHeap)
+        {
+            for (var i = countOfNumbersToPlaceInHeap; i < nums.Length; i++)
+            {
+                heap.EnqueueDequeue(nums[i], nums[i]);
+            }
         }
     }
 
-    // O(N) because of list manipulations (removal fron the front of list, insertion into the middle, etc.)
+    // O(logk)
     public int Add(int val)
     {
-        heap.Enqueue(val, val);
-        if (heap.Count > k)
+        if (heap.Count == k)
         {
-            heap.Dequeue();
+            heap.EnqueueDequeue(val, val);
+        }
+        else
+        {
+            System.Diagnostics.Debug.Assert(heap.Count == k - 1);
+            heap.Enqueue(val, val);
         }
 
         return heap.Peek();
