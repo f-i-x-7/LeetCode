@@ -46,13 +46,58 @@ public class Solution
 {
     public int[] TopKFrequent(int[] nums, int k)
     {
-        if (nums is null || nums.Length == 0 || k <= 0)
+        if (nums is null || nums.Length == 0 || k <= 0 || k > nums.Length)
             return new int[0];
 
-        return TopKFrequent_HashMapAndHeap1(nums, k);
+        return TopKFrequent_HashMapAndHeap2(nums, k);
     }
 
     private int[] TopKFrequent_HashMapAndHeap1(int[] nums, int k)
+    {
+        var map = GetFrequencyMap(nums, k);
+
+        // Use min heap of size K where priority is num frequency.
+        // Total time complexity of heap manipulations is O(M * logK + K)
+        // Time complexity is O(M * logK) where M is number of unique nums
+        var heap = new PriorityQueue<int, int>(k);
+        foreach (var (num, frequency) in map)
+        {
+            if (heap.Count < k)
+                heap.Enqueue(element: num, priority: frequency);
+            else
+                heap.EnqueueDequeue(element: num, priority: frequency);
+        }
+
+        // Get all items from heap as unordered is O(K) operation?
+        return heap.UnorderedItems.Select(x => x.Element).ToArray();
+    }
+
+    private int[] TopKFrequent_HashMapAndHeap2(int[] nums, int k)
+    {
+        // Fill map same way as in approach 1
+        var map = GetFrequencyMap(nums, k);
+
+        // Use min heap of size K where priority is num frequency.
+        // In general, this is more optimized approach comparing to approach #1: O((M-K) * logK + 2 * K)
+        // (may be it can perform worse if K << M, then (M-K) ~= M, and 2 * K in this approach can outweight K from 1st approach)
+        // 1) Prefill heap with K items - O(K)
+        var firstKHeapItems = map
+            .Take(k)
+            .Select(kv => (Num: kv.Key, Frequency: kv.Value))
+            .ToArray(); // use ToArray() so that PriorityQueue can have access to number of items
+        var heap = new PriorityQueue<int, int>(firstKHeapItems);
+
+        // 2) Add additional items - O((M-K) * logK) where M is number of unique nums.
+        foreach (var (num, frequency) in map.Skip(k))
+        {
+            heap.EnqueueDequeue(element: num, priority: frequency);
+        }
+
+        // Get all items from heap as unordered is O(K) operation?
+        return heap.UnorderedItems.Select(x => x.Element).ToArray();
+    }
+
+    private Dictionary<int, int> GetFrequencyMap(int[] nums, int k)
     {
         // Fill map, key is num and value is its frequency.
         // What is time complexity? O(N) iterations, O(1) average map insertion, but O(X) in worse case (where X is number of items in map)
@@ -64,19 +109,7 @@ public class Solution
             map.TryGetValue(num, out var frequency);
             map[num] = frequency + 1;
         }
-
-        // Use min heap of size K where priority is num frequency.
-        // Time complexity is O(M * logK) where M is number of unique nums
-        var heap = new PriorityQueue<int, int>(k);
-        foreach (var (num, frequency) in map)
-        {
-            if (heap.Count < k)
-                heap.Enqueue(element: num, priority: frequency);
-            else
-                heap.EnqueueDequeue(element: num, priority: frequency);
-        }
-
-        // Get all itemas from heap as unordered is O(K) operation?
-        return heap.UnorderedItems.Select(x => x.Element).ToArray();
+        System.Diagnostics.Debug.Assert(k <= map.Count, "Task constraint is violated: K is greater than number of unique nums");
+        return map;
     }
 }
