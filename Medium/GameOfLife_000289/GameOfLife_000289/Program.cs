@@ -46,19 +46,22 @@ public class Solution
         if (board == null || board.Length == 0)
             return;
 
-        // Brute force solution, O(N) time, O(N) memory (where N = m x n).
+        const int Dead = 0;
+        const int Alive = 1;
+        const int Resurrecting = 2;
+        const int Dying = 3;
+
+        // Initially brute force solution was implemented, O(N) time, O(N) memory (where N = m x n).
+        // After peeking into Leetcode discussions, reimplemented with in-place updating - O(1) memory.
+        // Trick is with using more values (not only 0 and 1).
 
         // Technically some minor perf improvements can be made with unsafe code - iterate to remove arrays bounds check
         // (I am pretty sure that JIT is not smart enough to eliminate this bounds check when loop variables are compared with m and n).
         var m = board.Length;
         var n = board[0].Length;
 
-        var transformed = new int[m][];
-
         for (var i = 0; i < m; i++)
         {
-            transformed[i] = new int[n];
-
             var upperNeighborsRowIndex = Math.Max(0, i - 1);
             var lowerNeighborsRowIndex = Math.Min(m - 1, i + 1);
 
@@ -75,52 +78,61 @@ public class Solution
                     {
                         if (k == i && l == j)
                             continue;
-                        if (board[k][l] == 1)
+
+                        var cellValue = board[k][l];
+                        if (cellValue == Alive || cellValue == Dying) // Alive before transformation
                             liveNeighbors++;
                     }
                 }
 
                 System.Diagnostics.Debug.Assert(liveNeighbors >= 0 && liveNeighbors <= 8);
 
-                if (board[i][j] == 0)
+                if (board[i][j] == Dead)
                 {
                     // Any dead cell with exactly three live neighbors becomes a live cell, as if by reproduction.
                     if (liveNeighbors == 3)
-                        transformed[i][j] = 1;
+                        board[i][j] = Resurrecting;
 
-                    // Cell remains dead. Do nothing as transformed array already contains zero at target position.
+                    // Cell remains dead. Do nothing.
                 }
                 else
                 {
                     // Live cell
                     switch (liveNeighbors)
                     {
-                        case 0:
-                        case 1:
-                            // Any live cell with fewer than two live neighbors dies as if caused by under-population.
-                            // Do nothing as transformed array already contains zero at target position.
-                            break;
-
                         case 2:
                         case 3:
                             // Any live cell with two or three live neighbors lives on to the next generation.
-                            transformed[i][j] = 1;
+                            // Do nothing.
                             break;
 
                         default:
+                            // Any live cell with fewer than two live neighbors dies as if caused by under-population.
+                            // OR
                             // Any live cell with more than three live neighbors dies, as if by over-population.
-                            // Do nothing as transformed array already contains zero at target position.
+                            board[i][j] = Dying;
                             break;
                     }
                 }
             }
         }
 
+        // Transform board.
         for (var i = 0; i < m; i++)
         {
             for (var j = 0; j < n; j++)
             {
-                board[i][j] = transformed[i][j];
+                switch (board[i][j])
+                {
+                    case Dying:
+                        board[i][j] = Dead;
+                        break;
+                    case Resurrecting:
+                        board[i][j] = Alive;
+                        break;
+                    default:
+                        break;
+                }
             }
         }
     }
