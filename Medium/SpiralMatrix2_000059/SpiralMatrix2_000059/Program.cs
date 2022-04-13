@@ -40,7 +40,12 @@ public class Solution
         if (n <= 0)
             throw new ArgumentOutOfRangeException(nameof(n), "Value should be non-negative.");
 
-        // Brute force O(N^2) approach
+        return GenerateMatrix_Shorter(n);
+    }
+
+    private int[][] GenerateMatrix_Long(int n)
+    {
+        // Naive O(N^2) approach, pretty much code
         var result = new int[n][];
         for (var k = 0; k < n; k++)
         {
@@ -109,6 +114,49 @@ public class Solution
 
                 default:
                     throw new ArgumentOutOfRangeException(nameof(direction));
+            }
+        }
+
+        return result;
+    }
+
+    private int[][] GenerateMatrix_Shorter(int n)
+    {
+        // Less code, solution idea taken from Leetcode official solution #1 (layers & manual code for 4 directions.
+        // Actually it was harder for me to implement.
+        var result = new int[n][];
+        for (var k = 0; k < n; k++)
+        {
+            result[k] = new int[n];
+        }
+
+        var num = 1;
+        var layers = (n + 1) / 2;
+
+        for (var layer = 0; layer < layers; layer++)
+        {
+            // Go right
+            for (var col = layer; col < n - layer; col++)
+            {
+                result[layer][col] = num++;
+            }
+
+            // Go down
+            for (var row = layer + 1; row < n - layer; row++)
+            {
+                result[row][n - layer - 1] = num++;
+            }
+
+            // Go left
+            for (var col = n - layer - 2; col >= layer; col--)
+            {
+                result[n - layer - 1][col] = num++;
+            }
+
+            // Go up
+            for (var row = n - layer - 2; row > layer; row--) // '>' in order not to fill 1st cell in layer again
+            {
+                result[row][layer] = num++;
             }
         }
 
