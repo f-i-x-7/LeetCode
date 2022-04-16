@@ -41,6 +41,13 @@ public class Solution
 {
     public TreeNode ConvertBST(TreeNode root)
     {
+        return ConvertBST_Recursive(root);
+    }
+
+    private TreeNode ConvertBST_Recursive(TreeNode root)
+    {
+        // Time complexity: O(N) (need to visit every node)
+        // Space complexity (required amount of call stack): O(H)=O(logN) best (when tree is balanced), O(N) worst (edge case of imbalanced tree - linked list)
         var sum = 0;
         Process(root, ref sum);
         return root;
@@ -54,7 +61,7 @@ public class Solution
             // Search for greater nodes, e.g. do depth-first search from right side
             if (node.right != null)
             {
-                Process(node.right, ref sum);   
+                Process(node.right, ref sum);
             }
 
             sum += node.val;
@@ -63,4 +70,33 @@ public class Solution
             Process(node.left, ref sum);
         }
     }
+
+    private TreeNode ConvertBST_IterateWithStack(TreeNode root)
+    {
+        // Time complexity: O(N) (need to visit every node)
+        // Space complexity (for manually managed stack): O(H)=O(logN) best (when tree is balanced), O(N) worst (edge case of imbalanced tree - linked list)
+        var sum = 0;
+        var nodes = new Stack<TreeNode>();
+
+        var current = root;
+
+        while (current != null || nodes.Count > 0)
+        {
+            while (current != null)
+            {
+                // Search for greater nodes, e.g. do depth-first search from right side
+                nodes.Push(current);
+                current = current.right;
+            }
+
+            current = nodes.Pop();
+            sum += current.val;
+            current.val = sum;
+            current = current.left;
+        }
+
+        return root;
+    }
+
+    // TODO: Approach #3 Reverse Morris In-order Traversal [Accepted], see Solution at Leetcode
 }
