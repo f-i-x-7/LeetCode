@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32002.185
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConvertBSTToGreaterTree_000538", "ConvertBSTToGreaterTree_000538\ConvertBSTToGreaterTree_000538.csproj", "{B594E1F7-BA78-49E9-AB26-43994926CE22}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B594E1F7-BA78-49E9-AB26-43994926CE22}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B594E1F7-BA78-49E9-AB26-43994926CE22}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B594E1F7-BA78-49E9-AB26-43994926CE22}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B594E1F7-BA78-49E9-AB26-43994926CE22}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8B0848FF-4A05-49EA-AB7D-6A1FB51B61BA}
+	EndGlobalSection
+EndGlobal
