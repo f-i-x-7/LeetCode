@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32002.185
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BinarySearchTreeIterator_000173", "BinarySearchTreeIterator_000173\BinarySearchTreeIterator_000173.csproj", "{40820BF1-2BA7-49E0-A053-E168F55AF5A6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{40820BF1-2BA7-49E0-A053-E168F55AF5A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{40820BF1-2BA7-49E0-A053-E168F55AF5A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{40820BF1-2BA7-49E0-A053-E168F55AF5A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{40820BF1-2BA7-49E0-A053-E168F55AF5A6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {AC735553-D54F-4087-95CF-92BDD58BAAF1}
+	EndGlobalSection
+EndGlobal
