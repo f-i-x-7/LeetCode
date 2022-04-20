@@ -59,41 +59,36 @@ public class Solution
         int firstWrongIndex = -1;
         int secondWrongIndex = -1;
 
+        // 2 elements need to be swapped. They are either adjacent or not
+
         for (var i = 0; i < nodesList.Count - 1; i++)
         {
             if (nodesList[i].val < nodesList[i + 1].val)
                 continue;
 
-            // i-th item is wrong
+            // We have found wrong items
             if (firstWrongIndex < 0)
             {
                 firstWrongIndex = i;
+                // At this point, assume that these adjacent elements need to be swapped.
+                // This can actually be true, see 2nd example from Leetcode, in-order traversal would produce [1,3,2,4] list, here first wrong item = 3 and second wrong item = 2, and the need to be swapped
+                secondWrongIndex = i + 1; 
             }
             else
             {
-                secondWrongIndex = i;
-                break;
+                // One more invalid pair found, this means that we actually need to swap not adjacent elements. 
+                // E.g. 1st Leetcode sample, in-order traversal would produce [3,2,1] list;
+                // at previous stage, 1st wrong item = 3 and second wrong item = 2; now we detect that 2 > 1, and we actually need to swap 3 and 1.
+                secondWrongIndex = i + 1;
+                break; // it is guaranteed that other elements have correct order
             }
         }
 
         System.Diagnostics.Debug.Assert(firstWrongIndex >= 0 && firstWrongIndex < nodesList.Count - 1);
+        System.Diagnostics.Debug.Assert(secondWrongIndex > 0 && secondWrongIndex < nodesList.Count);
+        System.Diagnostics.Debug.Assert(firstWrongIndex < secondWrongIndex);
 
-        if (secondWrongIndex < 0)
-        {
-            // secondWrongIndex can be not initialized, see 2nd example from Leetcode,
-            // in-order traversal would produce [1,3,2,4] list.
-            // Need to swap first wrong item with its successor.
-            Swap(nodesList, firstWrongIndex, firstWrongIndex + 1);
-        }
-        else
-        {
-            System.Diagnostics.Debug.Assert(firstWrongIndex < secondWrongIndex);
-            System.Diagnostics.Debug.Assert(secondWrongIndex > 0 && secondWrongIndex < nodesList.Count - 1);
-            // E.g. 1st Leetcode sample,
-            // in-order traversal would produce [3,2,1] list.
-            // So actually we need to swap first wrong item with successor of 2nd wrong item
-            Swap(nodesList, firstWrongIndex, secondWrongIndex + 1);
-        }
+        Swap(nodesList, firstWrongIndex, secondWrongIndex);
     }
 
     private void RecoverTree_RecursiveUsingList(TreeNode root)
@@ -154,12 +149,9 @@ public class Solution
 
         // Previous node according to in-order traversal
         TreeNode previous = null;
-        // First wrong node (that has value greater than its successor during in-order traversal) and its successor
+        // Nodes whose values need to be swapped
         TreeNode firstWrongNode = null;
-        TreeNode firstWrongNodeSuccessor = null;
-        // Second wrong node (that has value greater than its successor during in-order traversal) and its successor
         TreeNode secondWrongNode = null;
-        TreeNode secondWrongNodeSuccessor = null;
 
         while (current != null || nodes.Count > 0)
         {
@@ -178,19 +170,18 @@ public class Solution
                     // Invalid node found
                     if (firstWrongNode == null)
                     {
-                        System.Diagnostics.Debug.Assert(firstWrongNodeSuccessor == null);
-
+                        // At this point, assume that these adjacent nodes (in terms of in-order traversal) need to be swapped.
+                        // This can actually be true, see 2nd example from Leetcode, in-order traversal would produce [1,3,2,4] list, here first wrong item = 3 and second wrong item = 2, and the need to be swapped
                         firstWrongNode = previous;
-                        firstWrongNodeSuccessor = current;
+                        secondWrongNode = current;
                     }
                     else
                     {
-                        System.Diagnostics.Debug.Assert(secondWrongNode == null && secondWrongNodeSuccessor == null);
-
-                        secondWrongNode = previous;
-                        secondWrongNodeSuccessor = current;
-
-                        break;
+                        // One more invalid pair found, this means that we actually need to swap not adjacent (in terms of in-order traversal) nodes. 
+                        // E.g. 1st Leetcode sample, in-order traversal would produce [3,2,1] list;
+                        // at previous stage, 1st wrong item = 3 and second wrong item = 2; now we detect that 2 > 1, and we actually need to swap 3 and 1.
+                        secondWrongNode = current;
+                        break; // it is guaranteed that other elements have correct order
                     }
                 }
             }
@@ -200,21 +191,8 @@ public class Solution
             current = current.right;
         }
 
-        System.Diagnostics.Debug.Assert(firstWrongNode != null && firstWrongNodeSuccessor != null);
+        System.Diagnostics.Debug.Assert(firstWrongNode != null && secondWrongNode != null);
 
-        if (secondWrongNode == null)
-        {
-            // secondWrongNode can be not initialized, see 2nd example from Leetcode,
-            // in-order traversal would produce [1,3,2,4] list.
-            // Need to swap first wrong item with its successor.
-            Swap(firstWrongNode, firstWrongNodeSuccessor);
-        }
-        else
-        {
-            // E.g. 1st Leetcode sample,
-            // in-order traversal would produce [3,2,1] list.
-            // So actually we need to swap first wrong item with successor of 2nd wrong item
-            Swap(firstWrongNode, secondWrongNodeSuccessor);
-        }
+        Swap(firstWrongNode, secondWrongNode);
     }
 }
