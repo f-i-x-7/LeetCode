@@ -45,22 +45,17 @@ public class Solution
     // Main idea (unfortunately peeked out at Leetcode): while traversing tree in-order, one should observe sorted values.
     // If that is not true - this node is in wrong position.
 
-    private static void Swap(List<TreeNode> nodesList, int index1, int index2)
+    private static void Swap(TreeNode node1, TreeNode node2)
     {
-        var tmp = nodesList[index1].val;
-        nodesList[index1].val = nodesList[index2].val;
-        nodesList[index2].val = tmp;
+        var tmp = node1.val;
+        node1.val = node2.val;
+        node2.val = tmp;
     }
 
-    private void RecoverTree_RecursiveUsingList(TreeNode root)
+    private static void Swap(List<TreeNode> nodesList, int index1, int index2) => Swap(nodesList[index1], nodesList[index2]);
+
+    private static void FindAndSwap(List<TreeNode> nodesList)
     {
-        // Time: O(N) - need to process all nodes and then all elements in list
-        // Space: O(N) for list (and O(H) for call stack)
-
-        var nodesList = new List<TreeNode>();
-        InOrder(root, nodesList);
-        System.Diagnostics.Debug.Assert(nodesList.Count >= 2);
-
         int firstWrongIndex = -1;
         int secondWrongIndex = -1;
 
@@ -99,6 +94,18 @@ public class Solution
             // So actually we need to swap first wrong item with successor of 2nd wrong item
             Swap(nodesList, firstWrongIndex, secondWrongIndex + 1);
         }
+    }
+
+    private void RecoverTree_RecursiveUsingList(TreeNode root)
+    {
+        // Time: O(N) - need to process all nodes and then all elements in list
+        // Space: O(N) for list (and O(H) for call stack)
+
+        var nodesList = new List<TreeNode>();
+        InOrder(root, nodesList);
+        System.Diagnostics.Debug.Assert(nodesList.Count >= 2);
+
+        FindAndSwap(nodesList);
 
 
         static void InOrder(TreeNode current, List<TreeNode> nodesList)
@@ -109,6 +116,105 @@ public class Solution
             InOrder(current.left, nodesList);
             nodesList.Add(current);
             InOrder(current.right, nodesList);
+        }
+    }
+
+    private void RecoverTree_IterativeUsingList(TreeNode root)
+    {
+        // Time: O(N) - need to process all nodes and then all elements in list
+        // Space: O(N) for list (and O(H) for stack)
+        var nodesList = new List<TreeNode>();
+        var current = root;
+        var nodes = new Stack<TreeNode>();
+
+        while (current != null || nodes.Count > 0)
+        {
+            while (current != null)
+            {
+                nodes.Push(current);
+                current = current.left;
+            }
+
+            current = nodes.Pop();
+            nodesList.Add(current);
+
+            current = current.right;
+        }
+
+        FindAndSwap(nodesList);
+    }
+
+    private void RecoverTree_IterativeWithoutList(TreeNode root)
+    {
+        // Time: O(N) - need to process all nodes
+        // Space: O(H) for stack
+
+        var nodes = new Stack<TreeNode>();
+        var current = root;
+
+        // Previous node according to in-order traversal
+        TreeNode previous = null;
+        // First wrong node (that has value greater than its successor during in-order traversal) and its successor
+        TreeNode firstWrongNode = null;
+        TreeNode firstWrongNodeSuccessor = null;
+        // Second wrong node (that has value greater than its successor during in-order traversal) and its successor
+        TreeNode secondWrongNode = null;
+        TreeNode secondWrongNodeSuccessor = null;
+
+        while (current != null || nodes.Count > 0)
+        {
+            while (current != null)
+            {
+                nodes.Push(current);
+                current = current.left;
+            }
+
+            current = nodes.Pop();
+
+            if (previous != null)
+            {
+                if (previous.val > current.val)
+                {
+                    // Invalid node found
+                    if (firstWrongNode == null)
+                    {
+                        System.Diagnostics.Debug.Assert(firstWrongNodeSuccessor == null);
+
+                        firstWrongNode = previous;
+                        firstWrongNodeSuccessor = current;
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.Assert(secondWrongNode == null && secondWrongNodeSuccessor == null);
+
+                        secondWrongNode = previous;
+                        secondWrongNodeSuccessor = current;
+
+                        break;
+                    }
+                }
+            }
+            
+            previous = current;
+
+            current = current.right;
+        }
+
+        System.Diagnostics.Debug.Assert(firstWrongNode != null && firstWrongNodeSuccessor != null);
+
+        if (secondWrongNode == null)
+        {
+            // secondWrongNode can be not initialized, see 2nd example from Leetcode,
+            // in-order traversal would produce [1,3,2,4] list.
+            // Need to swap first wrong item with its successor.
+            Swap(firstWrongNode, firstWrongNodeSuccessor);
+        }
+        else
+        {
+            // E.g. 1st Leetcode sample,
+            // in-order traversal would produce [3,2,1] list.
+            // So actually we need to swap first wrong item with successor of 2nd wrong item
+            Swap(firstWrongNode, secondWrongNodeSuccessor);
         }
     }
 }
