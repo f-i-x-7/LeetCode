@@ -40,26 +40,57 @@ public class Solution
 {
     public TreeNode TrimBST(TreeNode root, int low, int high)
     {
+        return TrimBST_Recursive(root, low, high);
+    }
+
+    private TreeNode TrimBST_Recursive(TreeNode root, int low, int high)
+    {
         if (root is null)
             return null;
+
+        // Time complexity: up to O(N) (visiting all nodes can be required)
+        // Space complexity (required amount of call stack): O(H) = O(logN) best (balanced tree), O(N) worst case (imbalanced tree as linked list)
 
         if (root.val < low)
         {
             // root does not lie in bounds, and its left subtree too (because all its nodes have values less than root).
             // Try with right subtree
-            return TrimBST(root.right, low, high);
+            return TrimBST_Recursive(root.right, low, high);
         }
 
         if (root.val > high)
         {
             // root does not lie in bounds, and its right subtree too (because all its nodes have values greater than root).
             // Try with left subtree
-            return TrimBST(root.left, low, high);
+            return TrimBST_Recursive(root.left, low, high);
         }
 
         // root itself should be preserved, but that's possibly not true for its children
-        root.left = TrimBST(root.left, low, high);
-        root.right = TrimBST(root.right, low, high);
+        root.left = TrimBST_Recursive(root.left, low, high);
+        root.right = TrimBST_Recursive(root.right, low, high);
         return root;
+    }
+
+    private TreeNode TrimBST_IterativeWithStack(TreeNode root, int low, int high)
+    {
+        var nodes = new Stack<TreeNode>();
+        var current = root;
+
+        // TODO
+        return root;
+
+        // Depth-first search with stack
+        while (current != null || nodes.Count > 0)
+        {
+            while (current != null)
+            {
+                nodes.Push(current);
+                current = current.left;
+            }
+            
+            current = nodes.Pop();
+            // 
+            current = current.right;
+        }
     }
 }
