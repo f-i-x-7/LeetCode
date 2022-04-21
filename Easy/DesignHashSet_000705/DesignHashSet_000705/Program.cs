@@ -46,7 +46,10 @@ public class MyHashSet
         public ListNode Next { get; set; }
     }
 
-    private ListNode[] arr = new ListNode[10];
+    private const int InitialCapacity = 16;
+
+    private ListNode[] buckets = new ListNode[InitialCapacity];
+    private int resizeThreshold = InitialCapacity * 2;
     private int count;
 
     public MyHashSet()
@@ -56,8 +59,8 @@ public class MyHashSet
     public void Add(int key)
     {
         var hash = key;
-        var bucketIndex = hash % arr.Length;
-        ref var head = ref arr[bucketIndex];
+        var bucketIndex = hash % buckets.Length;
+        ref var head = ref buckets[bucketIndex];
         var current = head;
         ListNode tail = null;
 
@@ -71,20 +74,28 @@ public class MyHashSet
         }
 
         // key does not exist in hash set
+        if (count == int.MaxValue)
+            throw new Exception("Collection is full.");
+
         // TODO: implement logic of array resizing
         count++;
-        var newNode = new ListNode { Value = key };
-        if (head == null)
-            head = newNode;
+
+        if (count <= resizeThreshold)
+        {
+            // No resize needed
+            AddIntoBucket(key, ref head, tail);
+        }
         else
-            tail.Next = newNode;
+        {
+            ResizeAndThenAdd(key);
+        }
     }
 
     public void Remove(int key)
     {
         var hash = key;
-        var bucketIndex = hash % arr.Length;
-        ref var head = ref arr[bucketIndex];
+        var bucketIndex = hash % buckets.Length;
+        ref var head = ref buckets[bucketIndex];
         var current = head;
         ListNode previous = null;
 
@@ -114,8 +125,8 @@ public class MyHashSet
     public bool Contains(int key)
     {
         var hash = key;
-        var bucketIndex = hash % arr.Length;
-        var current = arr[bucketIndex];
+        var bucketIndex = hash % buckets.Length;
+        var current = buckets[bucketIndex];
 
         while (current != null)
         {
@@ -126,5 +137,55 @@ public class MyHashSet
         }
 
         return false;
+    }
+
+    private IEnumerable<int> GetAllKeys()
+    {
+        foreach (var head in buckets)
+        {
+            var current = head;
+            while (current != null)
+            {
+                yield return current.Value;
+                current = current.Next;
+            }
+        }
+    }
+
+    private void ResizeAndThenAdd(int keyToAdd)
+    {
+        var newBuckets = new ListNode[resizeThreshold];
+
+        resizeThreshold = count * 2;
+        if (resizeThreshold < 0)
+            resizeThreshold = int.MaxValue;
+
+        foreach (var key in GetAllKeys().Concat(new[] { keyToAdd }))
+        {
+            var hash = key;
+            var bucketIndex = hash % newBuckets.Length;
+            ref var head = ref newBuckets[bucketIndex];
+            var current = head;
+            ListNode tail = null;
+
+            while (current != null)
+            {
+                tail = current;
+                current = current.Next;
+            }
+
+            AddIntoBucket(key, ref head, tail);
+        }
+
+        buckets = newBuckets;
+    }
+
+    private void AddIntoBucket(int key, ref ListNode head, ListNode tail)
+    {
+        var newNode = new ListNode { Value = key };
+        if (head == null)
+            head = newNode;
+        else
+            tail.Next = newNode;
     }
 }
