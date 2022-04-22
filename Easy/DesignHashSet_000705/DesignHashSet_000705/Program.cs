@@ -77,7 +77,6 @@ public class MyHashSet
         if (count == int.MaxValue)
             throw new Exception("Collection is full.");
 
-        // TODO: implement logic of array resizing
         count++;
 
         if (count <= resizeThreshold)
