@@ -36,11 +36,10 @@
 //At most 10^4 calls will be made to put, get, and remove.
 
 var map = new MyHashMap();
-map.Put(10, 1);
-map.Put(26, 2);
-map.Remove(26);
-Console.WriteLine(map.Get(10));
-Console.WriteLine(map.Get(26));
+foreach (var x in Enumerable.Range(0, 17))
+{
+    map.Put(x, x);
+}
 
 
 
@@ -58,8 +57,9 @@ public class MyHashMap
 
     private const int DefaultSize = 16;
     private ListNode[] buckets = new ListNode[DefaultSize];
+    private int resizeThreshold = DefaultSize * 2;
+    private int count;
 
-    // TODO: implement resize
     public MyHashMap()
     {
     }
@@ -67,7 +67,7 @@ public class MyHashMap
     public void Put(int key, int value)
     {
         var hash = key;
-        var bucketIndex = hash % buckets.Length;
+        var bucketIndex = GetBucketIndex(hash, buckets);
 
         ref var head = ref buckets[bucketIndex];
         var current = head;
@@ -86,17 +86,25 @@ public class MyHashMap
         }
 
         // Value does not exist, need to add
-        var newNode = new ListNode { Key = key, Value = value };
-        if (head == null)
-            head = newNode;
-        else
-            previous.Next = newNode;
+        count++;
+        if (count >= resizeThreshold)
+        {
+            var newSize = resizeThreshold;
+            resizeThreshold *= 2;
+            if (resizeThreshold < 0)
+                resizeThreshold = int.MaxValue;
+
+            ResizeAndThenAdd(newSize, key, value);
+            return;
+        }
+
+        AddToBucket(key, value, ref head, tail: previous);
     }
 
     public int Get(int key)
     {
         var hash = key;
-        var bucketIndex = hash % buckets.Length;
+        var bucketIndex = GetBucketIndex(hash, buckets);
 
         var current = buckets[bucketIndex];
         while (current != null)
@@ -111,7 +119,7 @@ public class MyHashMap
     public void Remove(int key)
     {
         var hash = key;
-        var bucketIndex = hash % buckets.Length;
+        var bucketIndex = GetBucketIndex(hash, buckets);
 
         ref var head = ref buckets[bucketIndex];
         ListNode previous = null;
@@ -122,6 +130,8 @@ public class MyHashMap
             if (current.Key == key)
             {
                 // Key found, perform deletion
+                count--;
+
                 if (previous == null)
                 {
                     head = head.Next;
@@ -136,6 +146,58 @@ public class MyHashMap
             previous = current;
             current = current.Next;
         }
+    }
+
+    private IEnumerable<(int key, int value)> GetAllItems()
+    {
+        foreach (var head in buckets)
+        {
+            var current = head;
+            while (current != null)
+            {
+                yield return (current.Key, current.Value);
+                current = current.Next;
+            }
+        }
+    }
+
+    private void ResizeAndThenAdd(int newSize, int keyToAdd, int valueToAdd)
+    {
+        var newBuckets = new ListNode[newSize];
+
+        foreach (var (key, value) in GetAllItems().Concat(new[] { (keyToAdd, valueToAdd) }))
+        {
+            var hash = key;
+            var bucketIndex = GetBucketIndex(hash, newBuckets);
+
+            ref var head = ref newBuckets[bucketIndex];
+            var current = head;
+            ListNode previous = null;
+
+            while (current != null)
+            {
+                previous = current;
+                current = current.Next;
+            }
+
+            AddToBucket(key, value, ref head, tail: previous);
+        }
+
+        buckets = newBuckets;
+    }
+
+    private void AddToBucket(int key, int value, ref ListNode head, ListNode tail)
+    {
+        var newNode = new ListNode { Key = key, Value = value };
+        if (head == null)
+            head = newNode;
+        else
+            tail.Next = newNode;
+    }
+
+    private static int GetBucketIndex(int hash, ListNode[] buckets)
+    {
+        return hash % buckets.Length;
     }
 }
 
