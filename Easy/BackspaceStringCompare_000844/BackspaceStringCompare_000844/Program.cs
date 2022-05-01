@@ -27,7 +27,18 @@
 
 using System.Text;
 
-Test("y#fo##f", "y#f#o##f", true);
+Test("ab#c", "ad#c", true); // result string is "ac"
+Test("ab##", "c#d#", true); // result string is ""
+Test("a#c", "b", false); // result strings are "c" and "b"
+
+Test("y#fo##f", "y#f#o##f", true); // result string is "f"
+
+Test("#", "##", true); // result string is ""
+Test("##a#d#", "##b##c#", true); // result string is ""
+
+
+
+
 
 
 static void Test(string s, string t, bool expectedResult)
@@ -49,6 +60,11 @@ static void Test(string s, string t, bool expectedResult)
 public class Solution
 {
     public bool BackspaceCompare(string s, string t)
+    {
+        return BackspaceCompare_Optimal(s, t);
+    }
+
+    public bool BackspaceCompare_Naive(string s, string t)
     {
         // O(N) time, O(N) space
         var sb1 = new StringBuilder(s.Length);
@@ -88,6 +104,67 @@ public class Solution
             }
             else
                 sb.Append(str[i]);
+        }
+    }
+
+    public bool BackspaceCompare_Optimal(string s, string t)
+    {
+        // O(N) time, O(1) space
+
+        // Compare chars while iterating from tail, break loop and return false when 1st discrepance is found.
+        // Process 1 char per iteration.
+        var index1 = s.Length - 1;
+        var index2 = t.Length - 1;
+
+        while (true)
+        {
+            var ch1Exists = TryGetNextChar(s, ref index1, out var ch1);
+            var ch2Exists = TryGetNextChar(t, ref index2, out var ch2);
+
+            if (!ch1Exists && !ch2Exists)
+                return true;
+
+            if (!ch1Exists || !ch2Exists)
+                return false; // strings of different length
+
+            if (ch1 != ch2)
+                return false;
+
+            index1--;
+            index2--;
+        }
+
+
+
+        static bool TryGetNextChar(string str, ref int i, out char result)
+        {
+            var skip = 0;
+
+            while (i >= 0)
+            {
+                var ch = str[i];
+                if (ch == '#')
+                {
+                    skip++;
+                }
+                else
+                {
+                    if (skip > 0)
+                    {
+                        skip--;
+                    }
+                    else
+                    {
+                        result = ch;
+                        return true;
+                    }
+                }
+
+                i--;
+            }
+
+            result = default;
+            return false;
         }
     }
 }
