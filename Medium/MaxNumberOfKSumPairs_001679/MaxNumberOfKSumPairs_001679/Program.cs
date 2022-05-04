@@ -31,7 +31,9 @@ Console.WriteLine("Hello, World!");
 
 public class Solution
 {
-    public int MaxOperations(int[] nums, int k)
+    public int MaxOperations(int[] nums, int k) => MaxOperations_First(nums, k);
+
+    public int MaxOperations_First(int[] nums, int k)
     {
         // O(N * logN) time, O(1) space
         Array.Sort(nums);
@@ -43,7 +45,7 @@ public class Solution
         while (head < tail)
         {
             var sum = nums[head] + nums[tail];
-            
+
             if (sum < k)
             {
                 head++;
@@ -58,6 +60,44 @@ public class Solution
                 // Advance both pointers - simulate that both items are removed from array.
                 head++;
                 tail--;
+            }
+        }
+
+        return result;
+    }
+
+    public int MaxOperations_Second(int[] nums, int k)
+    {
+        // O(N) time, O(N) space
+        // Implemented after reading hints at Leetcode.
+
+        var numsCount = new Dictionary<int, int>();
+        for (var i = 0; i < nums.Length; i++)
+        {
+            var num = nums[i];
+            numsCount.TryGetValue(num, out var count);
+            numsCount[num] = ++count;
+        }
+
+        var result = 0;
+        foreach (var num in numsCount.Keys)
+        {
+            var count = numsCount[num];
+            var complement = k - num;
+            if (complement == num)
+            {
+                result += count / 2;
+            }
+            else
+            {
+                if (numsCount.TryGetValue(complement, out var complementCount))
+                {
+                    var numResult = Math.Min(count, complementCount);
+                    result += numResult;
+
+                    numsCount[num] -= numResult;
+                    numsCount[complement] -= numResult;
+                }
             }
         }
 
