@@ -64,17 +64,15 @@ public class MyStack
 
     public void Push(int x)
     {
-        var additionalQueue = new Queue<int>();
-        additionalQueue.Enqueue(x); // last added item should be first in stack, so add it to queue beginning
-        
-        // Continue to maintain LIFO order
-        while (stackEmulation.Count > 0)
-        {
-            var next = stackEmulation.Dequeue();
-            additionalQueue.Enqueue(next);
-        }
+        var count = stackEmulation.Count;
 
-        stackEmulation = additionalQueue;
+        stackEmulation.Enqueue(x); // last added item should be first in stack, so we re-add all items after this operations so it is located in the queue beginning
+
+        while (count > 0)
+        {
+            stackEmulation.Enqueue(stackEmulation.Dequeue());
+            count--;
+        }
     }
 
     public int Pop() => stackEmulation.Dequeue();
