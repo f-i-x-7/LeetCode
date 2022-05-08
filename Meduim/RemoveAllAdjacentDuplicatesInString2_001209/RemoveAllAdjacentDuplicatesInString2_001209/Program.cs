@@ -158,7 +158,7 @@ public class Solution
         return s;
     }
 
-    public string RemoveDuplicates_Optimal(string s, int k)
+    public string RemoveDuplicates_SubOptimal(string s, int k)
     {
         // O(N * k) time? O(N) space - for stack and string builder
         // Used Leetcode hint that stack should be used
@@ -239,6 +239,64 @@ public class Solution
         while (chars.Count > 0)
         {
             sb.Append(chars.Pop());
+        }
+        return sb.ToString();
+    }
+
+    private sealed class CharInfo
+    {
+        public char Char { get; set; }
+        public int Count { get; set; }
+
+        public override string ToString() => new { Char, Count }.ToString();
+    }
+
+    public string RemoveDuplicates_Optimal(string s, int k)
+    {
+        // O(N) time, O(N) space - for stack and string builder
+        var previous = new CharInfo();
+
+        var chars = new Stack<CharInfo>();
+
+        for (var i = s.Length - 1; i >= 0; i--)
+        {
+            var current = s[i];
+            if (current == previous.Char)
+            {
+                previous.Count++;
+                if (previous.Count == k)
+                {
+                    // Remove last item from stack
+                    chars.Pop();
+
+                    if (chars.Count == 0)
+                    {
+                        previous = new();
+                    }
+                    else
+                    {
+                        previous = chars.Peek();
+                    }
+                }
+            }
+            else
+            {
+                previous = new CharInfo { Char = current, Count = 1 };
+                chars.Push(previous);
+            }
+        }
+
+        // Build string without duplciates
+        var sb = new StringBuilder(chars.Count);
+        while (chars.Count > 0)
+        {
+            var charInfo = chars.Pop();
+            var counter = 0;
+            while (counter < charInfo.Count)
+            {
+                sb.Append(charInfo.Char);
+                counter++;
+            }
         }
         return sb.ToString();
     }
