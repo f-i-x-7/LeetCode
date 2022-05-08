@@ -162,8 +162,7 @@ public class Solution
     {
         // O(N * k) time? O(N) space - for stack and string builder
         // Used Leetcode hint that stack should be used
-        var duplicatesCount = 1;
-        var previous = default(char);
+        var (duplicatesCount, previous) = (0, default(char));
 
         var chars = new Stack<char>();
 
@@ -224,7 +223,6 @@ public class Solution
                 }
                 else
                 {
-                    previous = current;
                     chars.Push(current);
                 }
             }
