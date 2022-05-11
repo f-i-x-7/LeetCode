@@ -65,6 +65,15 @@ public class Solution
         return GetCombinations(digits, k).Where(c => c.Sum() == n).ToArray();
     }
 
+    public IList<IList<int>> CombinationSum3_BruteForce_WithSeveralOptimizations(int k, int n)
+    {
+        // Time complexity: O(C(9,k))?
+        // Space complexity: O(C(9,k))?
+
+        // I've thought initially about some optimizations, and peeked into Leetcode solutions where they were. But I extended them a bit.
+        return GetCombinations_Optimized(digits, k, targetSum: n);
+    }
+
     // General purpose method to find combinations of k items from integer array of length n.
     // It is not optimized for current task.
     private static IList<IList<int>> GetCombinations(int[] items, int k)
@@ -82,10 +91,10 @@ public class Solution
 
         void AddCombinations(int itemIndexInCombination, List<int> itemsInCombinationSoFar) // maintain list in sorted order
         {
-            if (itemIndexInCombination >= k)
+            if (itemIndexInCombination == k)
             {
                 combinations.Add(itemsInCombinationSoFar);
-                return;
+                return ;
             }
 
             var minBoundForNextAllowedItem = itemsInCombinationSoFar.LastOrDefault() + 1; // max(list) + 1
@@ -104,6 +113,52 @@ public class Solution
                 itemsInCombination.Add(nextItem);
                 AddCombinations(itemIndexInCombination + 1, itemsInCombination);
             }
+        }
+    }
+
+    // Method that is optimized for this particular task, but still it is extensible.
+    // What it is taken into consideration:
+    // 1) There are no negative numbers participating in combinations.
+    // 2) Array starts from integer 1, and each next item is greater than previous by 1.
+    // P.1 and p.2 both allow to calculate sum on the fly and exit early, thus reducing amount of recursion calls.
+    // P.2 replaces binary search with search by index.
+    private static IList<IList<int>> GetCombinations_Optimized(int[] items, int k, int targetSum)
+    {
+        if (k > items.Length || k < 1)
+            return Array.Empty<int[]>();
+
+        // items array should be sorted
+        var combinations = new List<IList<int>>();
+        AddCombinations(0, new List<int>(), 0);
+        return combinations;
+
+
+        // Return false when sum is exceeded
+        bool AddCombinations(int itemIndexInCombination, List<int> itemsInCombinationSoFar, int currentSum) // maintain list in sorted order
+        {
+            if (currentSum > targetSum)
+                return false;
+
+            if (itemIndexInCombination == k)
+            {
+                if (currentSum == targetSum)
+                    combinations.Add(itemsInCombinationSoFar);
+                return true;
+            }
+
+            var nextNumberIndex = itemsInCombinationSoFar.LastOrDefault(); // max(list)
+
+            for (var i = nextNumberIndex; i < items.Length; i++)
+            {
+                var nextItem = items[i];
+                var itemsInCombination = itemsInCombinationSoFar.ToList();
+                itemsInCombination.Add(nextItem);
+
+                if (!AddCombinations(itemIndexInCombination + 1, itemsInCombination, currentSum: currentSum + nextItem))
+                    break;
+            }
+
+            return true;
         }
     }
 }
