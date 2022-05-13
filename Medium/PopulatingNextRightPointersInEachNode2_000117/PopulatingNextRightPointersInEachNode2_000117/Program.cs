@@ -70,6 +70,11 @@ public class Solution
 {
     public Node Connect(Node root)
     {
+        return Connect_Recursive(root);
+    }
+
+    private Node Connect_Recursive(Node root)
+    {
         if (root != null)
         {
             // Breadth-first traversal.
@@ -77,6 +82,38 @@ public class Solution
             // Space: O(N) (O(N) to store nodes, O(H) for call stack)
             Traverse(new[] { root });
         }
+        return root;
+    }
+
+    private Node Connect_Iterative(Node root)
+    {
+        if (root != null)
+        {
+            // Breadth-first traversal.
+            // Time: O(N) - need to visit all nodes at each level
+            // Space: O(N) - to store nodes
+
+            IList<Node> nodesAtPreviousLevel = new[] { root };
+            while (nodesAtPreviousLevel.Count > 0)
+            {
+                var nodesAtCurrentLevel = new List<Node>();
+                foreach (var node in nodesAtPreviousLevel)
+                {
+                    if (node.left != null)
+                        nodesAtCurrentLevel.Add(node.left);
+                    if (node.right != null)
+                        nodesAtCurrentLevel.Add(node.right);
+                }
+
+                for (var i = 0; i < nodesAtCurrentLevel.Count - 1; i++)
+                {
+                    nodesAtCurrentLevel[i].next = nodesAtCurrentLevel[i + 1];
+                }
+
+                nodesAtPreviousLevel = nodesAtCurrentLevel;
+            }
+        }
+
         return root;
     }
 
