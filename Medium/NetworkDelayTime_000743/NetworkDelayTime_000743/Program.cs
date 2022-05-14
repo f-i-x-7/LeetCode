@@ -37,8 +37,7 @@ public class Solution
         // Dijksta algorithm to find paths from k-th vertice to all other vertices
         // Time: O(N^2)
         // Space: O(N^2)
-        var pathCosts = BuildPathsCosts(); // O(N^2) time, O(N^2) space
-
+        var adjacencyMap = BuildAdjacencyMap(); // O(E = N^2) time, O(E = N^2) space
 
         // O(N) time, O(N) space
         var verticesCost = new int[n];
@@ -53,26 +52,25 @@ public class Solution
 
 
         var currentVerticeIndex = k - 1;
-        
+
         // O(N^2) time, O(1) space
         while (true)
         {
             var currentVerticeCost = verticesCost[currentVerticeIndex];
 
-            for (var toVerticeIndex = 0; toVerticeIndex < n; toVerticeIndex++)
+            if (adjacencyMap.TryGetValue(currentVerticeIndex, out var adjacent))
             {
-                var pathCost = pathCosts[currentVerticeIndex][toVerticeIndex];
-                if (pathCost < 0)
-                    continue; // no edge between vertices
-
-                var toVerticeNewCost = currentVerticeCost + pathCost;
-                if (verticesCost[toVerticeIndex] > toVerticeNewCost)
-                    verticesCost[toVerticeIndex] = toVerticeNewCost;
+                foreach (var (toVerticeIndex, pathCost) in adjacent)
+                {
+                    var toVerticeNewCost = currentVerticeCost + pathCost;
+                    if (verticesCost[toVerticeIndex] > toVerticeNewCost)
+                        verticesCost[toVerticeIndex] = toVerticeNewCost;
+                }
             }
 
             // Mark current vertice as visited
             verticesVisitedFlag[currentVerticeIndex] = true;
-
+        
             // Find next vertice, it should have min cost
             var minCost = int.MaxValue;
             for (var i = 0; i < n; i++)
@@ -100,27 +98,24 @@ public class Solution
 
 
 
-        int[][] BuildPathsCosts()
+        Dictionary<int, List<(int TargetIndex, int Time)>> BuildAdjacencyMap()
         {
-            // O(N^2) time
-            var result = new int[n][];
-            for (var i = 0; i < n; i++)
-            {
-                result[i] = new int[n];
-                for (var j = 0; j < n; j++)
-                {
-                    result[i][j] = -1;
-                }
-            }
+            // O(E) time = O(N^2) worst case
+            var result = new Dictionary<int, List<(int TargetIndex, int Time)>>();
 
-            // O(N^2) time? each vertice can be connected with each vertice technically
             foreach (var arr in times)
             {
                 var fromVerticeIndex = arr[0] - 1;
                 var toVerticeIndex = arr[1] - 1;
                 var pathLength = arr[2];
 
-                result[fromVerticeIndex][toVerticeIndex] = pathLength;
+                if (!result.TryGetValue(fromVerticeIndex, out var list))
+                {
+                    list = new();
+                    result.Add(fromVerticeIndex, list);
+                }
+
+                list.Add((TargetIndex: toVerticeIndex, Time: pathLength));
             }
 
             return result;
