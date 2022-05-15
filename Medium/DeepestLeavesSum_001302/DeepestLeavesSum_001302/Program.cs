@@ -18,6 +18,9 @@ Console.WriteLine("Hello, World!");
 
 
 
+new Solution().DeepestLeavesSum(new TreeNode(1, left: new TreeNode(2), right: new TreeNode(3)));
+
+
 public class TreeNode
 {
     public int val;
@@ -35,7 +38,7 @@ public class Solution
 {
     public int DeepestLeavesSum(TreeNode root)
     {
-        return DeepestLeavesSum_BFS_Recursive(root);
+        return DeepestLeavesSum_DFS_Recursive(root);
     }
 
     private int DeepestLeavesSum_BFS_Recursive(TreeNode root)
@@ -90,5 +93,75 @@ public class Solution
 
             nodesAtPreviousLevel = nodesAtCurrentLevel;
         }
+    }
+
+    private int DeepestLeavesSum_DFS_Recursive(TreeNode root)
+    {
+        // Time: O(N) - need to visit all nodes
+        // Space: O(H) for call stack
+        var sumLevel = 0;
+        var sum = 0;
+
+        DFS(root, currentLevel: 0, ref sumLevel, ref sum);
+        return sum;
+
+
+        void DFS(TreeNode root, int currentLevel, ref int sumLevel, ref int sum)
+        {
+            // Post-order traversal
+            if (root.left != null)
+                DFS(root.left, currentLevel + 1, ref sumLevel, ref sum);
+            if (root.right != null)
+                DFS(root.right, currentLevel + 1, ref sumLevel, ref sum);
+
+            if (currentLevel > sumLevel)
+            {
+                sum = root.val;
+                sumLevel = currentLevel;
+            }
+            else if (currentLevel == sumLevel)
+            {
+                sum += root.val;
+            }
+        }
+    }
+
+    private int DeepestLeavesSum_DFS_Iterative(TreeNode root)
+    {
+        // Time: O(N) - need to visit all nodes
+        // Space: O(H) for stack
+        var stack = new Stack<(TreeNode Node, int Depth)>();
+
+        // In-order traversal
+        var sum = 0;
+        var sumDepth = 0;
+        var current = root;
+        var currDepth = 0;
+
+        while (current != null || stack.Count > 0)
+        {
+            while (current != null)
+            {
+                stack.Push((current, currDepth));
+                current = current.left;
+                currDepth++;
+            }
+
+            (current, currDepth) = stack.Pop();
+            if (currDepth > sumDepth)
+            {
+                sum = current.val;
+                sumDepth = currDepth;
+            }
+            else if (currDepth == sumDepth)
+            {
+                sum += current.val;
+            }
+
+            current = current.right;
+            currDepth++;
+        }
+
+        return sum;
     }
 }
