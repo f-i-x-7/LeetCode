@@ -35,9 +35,9 @@ public class Solution
     public int NetworkDelayTime(int[][] times, int n, int k)
     {
         // Dijksta algorithm to find paths from k-th vertice to all other vertices
-        // Time: O(N^2)
-        // Space: O(N^2)
-        var adjacencyMap = BuildAdjacencyMap(); // O(E = N^2) time, O(E = N^2) space
+        // Time: O(N + ElogN = N^2 logN worst)
+        // Space: O(N + E = N + N^2 worst = N^2 worst)
+        var adjacencyMap = BuildAdjacencyMap(); // O(E = N^2 worst) time, O(E = N^2 worst) space
 
         // O(N) time, O(N) space
         var verticesCost = new int[n];
@@ -48,15 +48,18 @@ public class Solution
                 : int.MaxValue;
         }
 
-        var verticesVisitedFlag = new bool[n];
+        var notVisitedVertices = new PriorityQueue<(int VerticeIndex, int Cost), int>();
+        notVisitedVertices.Enqueue((VerticeIndex: k - 1, Cost: 0), 0);
 
-
-        var currentVerticeIndex = k - 1;
-
-        // O(N^2) time, O(1) space
-        while (true)
+        // O(E logN) time, O(E = N^2 worst) space
+        // Heap can contain up to E items (because we traversing adjacency map), so operations on it are O(logE).
+        // E=N^2 worst case, so O(logE) = O(logN^2) = O(2 logN) = O(logN).
+        // And number of operations on heap is limited by E, so time complexity is O(E logN) = O(N^2 logN) worst
+        while (notVisitedVertices.Count > 0)
         {
-            var currentVerticeCost = verticesCost[currentVerticeIndex];
+            var (currentVerticeIndex, currentVerticeCost) = notVisitedVertices.Dequeue();
+            if (currentVerticeCost > verticesCost[currentVerticeIndex])
+                continue; // required because same vertice can be placed to heap several times (if its cost is decreasing during loop below)
 
             if (adjacencyMap.TryGetValue(currentVerticeIndex, out var adjacent))
             {
@@ -64,32 +67,16 @@ public class Solution
                 {
                     var toVerticeNewCost = currentVerticeCost + pathCost;
                     if (verticesCost[toVerticeIndex] > toVerticeNewCost)
+                    {
                         verticesCost[toVerticeIndex] = toVerticeNewCost;
+                        notVisitedVertices.Enqueue((VerticeIndex: toVerticeIndex, Cost: toVerticeNewCost), toVerticeNewCost);
+                    }
                 }
             }
-
-            // Mark current vertice as visited
-            verticesVisitedFlag[currentVerticeIndex] = true;
-        
-            // Find next vertice, it should have min cost
-            var minCost = int.MaxValue;
-            for (var i = 0; i < n; i++)
-            {
-                if (verticesVisitedFlag[i])
-                    continue;
-
-                if (verticesCost[i] < minCost)
-                {
-                    minCost = verticesCost[i];
-                    currentVerticeIndex = i;
-                }
-            }
-
-            if (minCost == int.MaxValue)
-                break; // either all vertices are visited or graph is not connected
         }
 
         // Now it's time to return result
+        // O(N) time
         var max = verticesCost.Max();
         if (max == int.MaxValue)
             return -1; // it is impossible for signal to visit all edges
@@ -100,7 +87,7 @@ public class Solution
 
         Dictionary<int, List<(int TargetIndex, int Time)>> BuildAdjacencyMap()
         {
-            // O(E) time = O(N^2) worst case
+            // O(E) time and space = O(N^2) worst case
             var result = new Dictionary<int, List<(int TargetIndex, int Time)>>();
 
             foreach (var arr in times)
