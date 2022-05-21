@@ -47,67 +47,41 @@ public class Solution
         if (obstacleGrid[0][0] != SPACE || obstacleGrid[m - 1][n - 1] != SPACE)
             return 0;
 
-        // BFS approach.
-        // Time: O(m*n)?
-        // Space: O(m*n)?
-        // Out of memory :(
+        // DFS approach with memoization.
+        // Time: O(m*n) - each cell will be visited only once
+        // Space: O(m*n)
+        // Implemented after peeking into Discussions section.
 
-        // DFS - Time Limit Exceeded :(
+        var numberOfPathsFromCellToFinish = new Dictionary<(int Row, int Col), int>();
 
-        var pathsCount = 0;
-        DFS(0, 0, ref pathsCount);
-        //BFS(new List<(int Row, int Col)> { (0, 0) }, ref pathsCount);
-        return pathsCount;
+        return DFS(0, 0);
 
-
-
-        void BFS(List<(int Row, int Col)> currentCells, ref int pathsCount)
+        // Returns number of ways from cell with coordinates (row, col) to finish cell.
+        int DFS(int row, int col)
         {
-            var nextCells = new List<(int Row, int Col)>();
-            foreach (var cell in currentCells)
-            {
-                if (cell == (Row: m - 1, Col: n - 1))
-                {
-                    pathsCount++;
-                    continue;
-                }
+            if (row < 0 || col < 0 || row >= m || col >= n)
+                return 0; // out of grid
 
+            if (row == m - 1 && col == n - 1)
+                return 1; // finish cell
+
+            if (obstacleGrid[row][col] != SPACE)
+                return 0; // obstacle
+
+            if (!numberOfPathsFromCellToFinish.TryGetValue((Row: row, Col: col), out var numPaths))
+            {
                 foreach (var direction in Directions)
                 {
-                    var newRow = cell.Row + direction[0];
-                    var newCol = cell.Col + direction[1];
+                    var newRow = row + direction[0];
+                    var newCol = col + direction[1];
 
-                    if (newRow < 0 || newCol < 0 || newRow >= m || newCol >= n || obstacleGrid[newRow][newCol] != SPACE)
-                        continue;
-
-                    nextCells.Add((Row: newRow, Col: newCol));
+                    numPaths += DFS(newRow, newCol);
                 }
+
+                numberOfPathsFromCellToFinish.Add((Row: row, Col: col), numPaths);
             }
 
-            if (nextCells.Count == 0)
-                return;
-
-            BFS(nextCells, ref pathsCount);
-        }
-
-        void DFS(int row, int col, ref int pathsCount)
-        {
-            if (row == m - 1 && col == n - 1)
-            {
-                pathsCount++;
-                return;
-            }
-
-            foreach (var direction in Directions)
-            {
-                var newRow = row + direction[0];
-                var newCol = col + direction[1];
-
-                if (newRow < 0 || newCol < 0 || newRow >= m || newCol >= n || obstacleGrid[newRow][newCol] != SPACE)
-                    continue;
-
-                DFS(newRow, newCol, ref pathsCount);
-            }
+            return numPaths;
         }
     }
 }
