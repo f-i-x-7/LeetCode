@@ -25,13 +25,19 @@
 //1 <= m, n <= 200
 //0 <= matrix[i][j] <= 2^31 - 1
 
-using System.Diagnostics.CodeAnalysis;
-
 Console.WriteLine("Hello, World!");
 
 
 
 new Solution().LongestIncreasingPath(new[] { new[] { 1 } });
+
+// [[7,7,5],[2,4,6],[8,2,0]]
+new Solution().LongestIncreasingPath(new[]
+{
+    new[] { 7, 7, 5 },
+    new[] { 2, 4, 6 },
+    new[] { 8, 2, 0 }
+});
 
 
 public class Solution
@@ -44,6 +50,7 @@ public class Solution
         public override int GetHashCode() => (Row, Column).GetHashCode();
         public override bool Equals(object obj) => obj is Cell other && Equals(other);
         public bool Equals(Cell other) => Row == other.Row && Column == other.Column;
+        public override string ToString() => $"({Row},{Column})";
     }
 
     private static readonly (int RowDelta, int ColDelta)[] Directions = new[]
@@ -63,34 +70,44 @@ public class Solution
         var n = matrix[0].Length;
 
         // Unfortunately, at Leetcode time limit is exceeded for current implementation :(
-        // Time: O(m * n * 4^m*n)?
-        // Space: O(m * n)? It is for additional data structures, also some call stack space for recursive DFS is used.
+        // Time: O(m * n)
+        // Space: O(m * n). It is for additional data structures, also some call stack space for recursive DFS is used.
 
         // Represent matrix as directed graph where increasing path is set of edges.
         var (adjacencyMap, cellsWithIncomingEdges) = GetAdjacencyMapAndCellsWIthIncomingEdges(matrix);
         var startCells = GetStartCells(adjacencyMap, cellsWithIncomingEdges);
+
+        // DP array was used after peeking into Leetcode solutions/discussions.
+        // It contains a target path length (i.e. increasing path length) from cell with coordinates (i, j).
+        // NOTE: actually, after peeking and introducing DP array, I realized that solution can be simplified, transformation to graph can be eliminated, etc.
+        // But I saved it as is.
+        var dp = GetDpArray(m, n);
 
         // Now we can do either DFS/BFS or implement Dijkstra algorithm to find longest path starting from start cells.
         // Note that in current graph there are no cycles, so it is easier to implement DFS/BFS.
         var result = 1;
         foreach (var cell in startCells)
         {
-            result = Math.Max(result, DFS(cell, 1));
+            result = Math.Max(result, DFS(cell) + 1);
         }
 
         return result;
 
 
-        int DFS(Cell current, int currentPathLength)
+        int DFS(Cell current)
         {
             if (!adjacencyMap.TryGetValue(current, out var adjacentCells) || adjacentCells.Count == 0)
-                return currentPathLength;
+                return 0;
 
-            var result = currentPathLength;
+            var result = -1;
             foreach (var adjCell in adjacentCells)
             {
-                result = Math.Max(result, DFS(adjCell, currentPathLength + 1));
+                var adjCellPathLength = dp[adjCell.Row][adjCell.Column] > 0
+                    ? dp[adjCell.Row][adjCell.Column]
+                    : DFS(adjCell);
+                result = Math.Max(result, adjCellPathLength + 1);
             }
+            dp[current.Row][current.Column] = result;
             return result;
         }
     }
@@ -142,6 +159,17 @@ public class Solution
                 result.Add(cell);
         }
         
+        return result;
+    }
+
+    private int[][] GetDpArray(int m, int n)
+    {
+        var result = new int[m][];
+        for (var i = 0; i < m; i++)
+        {
+            result[i] = new int[n];
+            Array.Fill(result[i], -1);
+        }
         return result;
     }
 }
