@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32516.85
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LongestValidParentheses_000032", "LongestValidParentheses_000032\LongestValidParentheses_000032.csproj", "{05594DA0-714D-4920-B609-7B982073058B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{05594DA0-714D-4920-B609-7B982073058B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{05594DA0-714D-4920-B609-7B982073058B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{05594DA0-714D-4920-B609-7B982073058B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{05594DA0-714D-4920-B609-7B982073058B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E3618360-EA47-4692-AF5A-9A98D3D82402}
+	EndGlobalSection
+EndGlobal
