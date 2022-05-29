@@ -23,9 +23,28 @@
 
 //Follow up: Can you come up with an algorithm that runs in O(n log(n)) time complexity?
 
-new Solution().LengthOfLIS(new[] { 1, 3, 6, 7, 9, 4, 10, 5, 6 }); // 1,3,6,7,9,10 => expected answer is 6
-//new Solution().LengthOfLIS(new[] { 10, 9, 2, 5, 3, 7, 101, 18 });
-//new Solution().LengthOfLIS(new[] { 0, 1, 0, 3, 2, 3 });
+Test(new[] { 1, 3, 6, 7, 9, 4, 10, 5, 6 }, expectedResult: 6); // 1,3,6,7,9,10
+Test(new[] { 10, 9, 2, 5, 3, 7, 101, 18 }, expectedResult: 4); // 2,3,7,101
+Test(new[] { 0, 1, 0, 3, 2, 3 }, expectedResult: 4); // 0,1,2,3
+
+
+void Test(int[] nums, int expectedResult)
+{
+    var actualResult = new Solution().LengthOfLIS(nums);
+    if (expectedResult != actualResult)
+    {
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine($"ERROR! {NumsToStr()}; ExpectedResult={expectedResult}, ActualResult={actualResult}");
+        Console.ResetColor();
+    }
+    else
+    {
+        Console.WriteLine($"SUCCESS! {NumsToStr()}; Result={actualResult}");
+    }
+
+
+    string NumsToStr() => "[" + string.Join(',', nums) + "]";
+}
 
 
 public class Solution
@@ -138,7 +157,10 @@ public class Solution
         //}
 
 
-        // SUCCEEDS AT 1ST TEST CASE! FAILS AT 3RD TEST CASE!
+        // WITHOUT nextItemInSubsequence - SUCCEEDS AT 1ST TEST CASE! FAILS AT 3RD TEST CASE!
+
+        // WITH nextItemInSubsequence - FAILS AT 1ST AND 2ND TEST CASES! SUCCEEDS AT 3RD TEST CASE!
+        // The reason of such failing is that instead of sequence 1,3,6,7,9,10 is proceeds with 1,3,4,..., but 4 is too far away, and produced sequence isn't the longest
         var subsequenceStart = sorted[subsequenceStartIndexInSortedArray];
         var subsequenceStartIndex = -1;
         for (var i = 0; i <= indexOfLocalMaximumAtTheEndOfInitialArray; i++)
@@ -152,6 +174,15 @@ public class Solution
 
         var subsequenceLength = 1;
         var lastItemInSubsequence = subsequenceStart;
+
+        //int nextItemInSubsequence = lastItemInSubsequence;
+        //var nextItemInSubsequenceIndexInSortedArray = subsequenceStartIndexInSortedArray + 1;
+        //while (nextItemInSubsequence == lastItemInSubsequence && nextItemInSubsequenceIndexInSortedArray < sorted.Length - 1)
+        //{
+        //    nextItemInSubsequence = sorted[nextItemInSubsequenceIndexInSortedArray];
+        //    nextItemInSubsequenceIndexInSortedArray++;
+        //}
+
         for (var i = subsequenceStartIndex + 1; i <= indexOfLocalMaximumAtTheEndOfInitialArray; i++)
         {
             if (nums[i] > lastItemInSubsequence)
@@ -160,6 +191,21 @@ public class Solution
                 lastItemInSubsequence = nums[i];
             }
         }
+
+        //for (var i = subsequenceStartIndex + 1; i <= indexOfLocalMaximumAtTheEndOfInitialArray; i++)
+        //{
+        //    if (nums[i] == nextItemInSubsequence)
+        //    {
+        //        subsequenceLength++;
+        //        lastItemInSubsequence = nextItemInSubsequence;
+
+        //        while (nextItemInSubsequence == lastItemInSubsequence && nextItemInSubsequenceIndexInSortedArray < sorted.Length - 1)
+        //        {
+        //            nextItemInSubsequence = sorted[nextItemInSubsequenceIndexInSortedArray];
+        //            nextItemInSubsequenceIndexInSortedArray++;
+        //        }
+        //    }
+        //}
 
         return subsequenceLength;
     }
